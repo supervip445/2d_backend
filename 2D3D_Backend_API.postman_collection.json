@@ -1,0 +1,586 @@
+{
+	"info": {
+		"_postman_id": "2d3d-backend-api-collection",
+		"name": "2D/3D Backend API",
+		"description": "Complete API collection for 2D/3D Backend - User Management, Authentication, and Two-Digit Operations",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2d3d-backend"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check if the server is running and healthy"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", jsonData.token);",
+									"    pm.environment.set(\"user_id\", jsonData.user.id);",
+									"    pm.environment.set(\"user_role\", jsonData.user.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_name\": \"admin\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/admin/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"admin",
+								"login"
+							]
+						},
+						"description": "Login for Owner, Agent, or Sub_Agent roles. Automatically saves token to environment variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Player Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", jsonData.token);",
+									"    pm.environment.set(\"user_id\", jsonData.user.id);",
+									"    pm.environment.set(\"user_role\", jsonData.user.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_name\": \"player1\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/player/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"player",
+								"login"
+							]
+						},
+						"description": "Login for Player role. Automatically saves token to environment variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/admin/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"admin",
+								"logout"
+							]
+						},
+						"description": "Logout for admin users. Client should remove token from storage."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"user_name\": \"johndoe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"+1234567890\",\n    \"password\": \"password123\",\n    \"role\": \"Player\",\n    \"deposit_amount\": 1000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"users"
+							]
+						},
+						"description": "Create a new user. Role hierarchy:\n- Owner can create Agent\n- Agent can create Sub_Agent or Player\n- Sub_Agent can create Player\n\nIf deposit_amount is provided, it will transfer from creator to new user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/user/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"users"
+							]
+						},
+						"description": "Get users based on role:\n- Owner: Gets all Agents with their Sub_Agents and Players\n- Agent: Gets Sub_Agents and Players under them\n- Sub_Agent: Gets Players under them\n- Player: Access denied"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Updated\",\n    \"email\": \"johnupdated@example.com\",\n    \"phone\": \"+1234567891\",\n    \"status\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user/users/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "User ID to update"
+								}
+							]
+						},
+						"description": "Update user information. Must follow role hierarchy for updates."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/user/users/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "User ID to delete"
+								}
+							]
+						},
+						"description": "Delete a user. Must follow role hierarchy for deletion."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My Updated Name\",\n    \"email\": \"myemail@example.com\",\n    \"phone\": \"+1234567890\",\n    \"address\": \"123 Main St, City, Country\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"profile"
+							]
+						},
+						"description": "Update your own profile. Any authenticated user can update their own profile."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Two-Digit Operations",
+			"item": [
+				{
+					"name": "Public Routes",
+					"item": [
+						{
+							"name": "Get All Two-Digits",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/two-digit/getall?status=1&search=",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"two-digit",
+										"getall"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "1",
+											"description": "Filter by status (1 = active, 0 = inactive)",
+											"disabled": true
+										},
+										{
+											"key": "search",
+											"value": "",
+											"description": "Search by two-digit value",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Get all two-digit numbers. Optional query parameters:\n- status: Filter by status (1 = active, 0 = inactive)\n- search: Search by two-digit value"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Active Two-Digits",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/two-digit/active",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"two-digit",
+										"active"
+									]
+								},
+								"description": "Get all active two-digit numbers (status = 1)"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Inactive Two-Digits",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/two-digit/inactive",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"two-digit",
+										"inactive"
+									]
+								},
+								"description": "Get all inactive two-digit numbers (status = 0)"
+							},
+							"response": []
+						},
+						{
+							"name": "Check Two-Digit Status",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/two-digit/status/:two_digit",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"two-digit",
+										"status",
+										":two_digit"
+									],
+									"variable": [
+										{
+											"key": "two_digit",
+											"value": "42",
+											"description": "Two-digit number (00-99)"
+										}
+									]
+								},
+								"description": "Check if a specific two-digit number is active or inactive"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Protected Routes (Admin Only)",
+					"item": [
+						{
+							"name": "Close Two-Digit",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/two-digit/close/:two_digit",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"two-digit",
+										"close",
+										":two_digit"
+									],
+									"variable": [
+										{
+											"key": "two_digit",
+											"value": "42",
+											"description": "Two-digit number to close (00-99)"
+										}
+									]
+								},
+								"description": "Close a two-digit number (set status to 0). Requires Owner, Agent, or Sub_Agent role."
+							},
+							"response": []
+						},
+						{
+							"name": "Open Two-Digit",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/two-digit/open/:two_digit",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"two-digit",
+										"open",
+										":two_digit"
+									],
+									"variable": [
+										{
+											"key": "two_digit",
+											"value": "42",
+											"description": "Two-digit number to open (00-99)"
+										}
+									]
+								},
+								"description": "Open a two-digit number (set status to 1). Requires Owner, Agent, or Sub_Agent role."
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_role",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+

@@ -1,0 +1,210 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+   provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  Owner
+  Agent
+  Sub_Agent
+  Player
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())  // Unique identifier for each user
+  name      String?  // Optional full name of the user
+  user_name String?  // Optional username for login
+  email     String?  @unique  // Optional unique email address
+  phone     String?  @unique  // Optional unique phone number
+  password  String   // Hashed password for authentication
+  address   String?  @db.Text  // Optional address stored as text
+  role      Role     @default(Owner)  // User role (ADMIN or USER) defaulting to USER
+  status    Boolean  @default(true)  // Account status flag, defaults to active
+  balance   Decimal  @db.Decimal(10,2) @default(0)  // User's balance with 2 decimal places
+  two_d_limit Decimal? @db.Decimal(10,2)  // User's personal betting limit per digit
+  agent_id  Int?       // Optional reference to an agent (self-relation)
+  agent     User?    @relation("UserToAgent", fields: [agent_id], references: [id])  // Relation to agent user
+  users     User[]   @relation("UserToAgent")  // Inverse relation - users managed by this agent
+  twoBetSlips TwoBetSlip[]  // User's bet slips
+  twoBets   TwoBet[]  // User's individual bets
+  agentBetSlips TwoBetSlip[] @relation("AgentBetSlips")  // Bet slips for users under this agent
+  agentBets TwoBet[] @relation("AgentBets")  // Bets for users under this agent
+  createdAt DateTime @default(now())  // Timestamp of user creation
+  updatedAt DateTime @updatedAt  // Automatically updated timestamp
+
+  @@map("users")  // Maps this model to "users" table in database
+}
+
+model TwoDigit {
+  id        Int      @id @default(autoincrement())
+  two_digit String   @unique @db.VarChar(2)
+  status    Int      @default(1) // 1 for active, 0 for inactive
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("two_digits")
+}
+
+enum BetSession {
+  morning
+  evening
+}
+
+enum BetSlipStatus {
+  pending
+  completed
+  cancelled
+}
+
+// Battle/Bettle - Betting session management
+model Battle {
+  id         Int      @id @default(autoincrement())
+  battle_name String?
+  start_time DateTime?
+  end_time   DateTime?
+  status     Boolean  @default(false)  // true: active/open, false: closed
+  open_date  DateTime?
+  twoBets    TwoBet[]
+  createdAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("battles")
+}
+
+// Two Bet Slip - Main bet slip record
+model TwoBetSlip {
+  id              Int            @id @default(autoincrement())
+  slip_no         String         @unique  // Format: "000001-mk-2d-YYYY-MM-DD-HH:MM:SS"
+  user_id         Int
+  player_name     String
+  agent_id        Int?
+  total_bet_amount Decimal        @db.Decimal(12, 2)
+  session         BetSession
+  status          BetSlipStatus  @default(pending)
+  game_date       DateTime       @db.Date
+  game_time       DateTime       @db.Time
+  before_balance  Decimal        @db.Decimal(12, 2)
+  after_balance   Decimal        @db.Decimal(12, 2)
+  user            User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  agent           User?          @relation("AgentBetSlips", fields: [agent_id], references: [id], onDelete: SetNull)
+  twoBets         TwoBet[]
+  createdAt       DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("two_bet_slips")
+}
+
+// Two Bet - Individual bet record
+model TwoBet {
+  id              Int            @id @default(autoincrement())
+  user_id         Int
+  member_name     String?
+  bettle_id       Int?
+  choose_digit_id Int?
+  head_close_id   Int?
+  agent_id        Int?
+  bet_number      String         @db.VarChar(2)  // 2-digit number: "00" to "99"
+  bet_amount      Decimal        @db.Decimal(10, 2)
+  session         BetSession
+  win_lose        Boolean        @default(false)
+  potential_payout Decimal       @db.Decimal(10, 2) @default(0)
+  bet_status      Boolean        @default(false)  // false: pending, true: settled
+  bet_result      String?
+  game_date       DateTime       @db.Date
+  game_time       DateTime       @db.Time
+  slip_id         Int
+  user            User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  battle          Battle?         @relation(fields: [bettle_id], references: [id], onDelete: SetNull)
+  betSlip         TwoBetSlip     @relation(fields: [slip_id], references: [id], onDelete: Cascade)
+  agent           User?          @relation("AgentBets", fields: [agent_id], references: [id], onDelete: SetNull)
+  chooseDigit     ChooseDigit?   @relation(fields: [choose_digit_id], references: [id], onDelete: SetNull)
+  headClose       HeadClose?     @relation(fields: [head_close_id], references: [id], onDelete: SetNull)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("two_bets")
+}
+
+// Two D Limit - Overall break amount
+model TwoDLimit {
+  id         Int      @id @default(autoincrement())
+  two_d_limit Decimal @db.Decimal(10, 2)
+  createdAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("two_d_limits")
+}
+
+// Choose Digit - Closed digit management
+model ChooseDigit {
+  id                Int      @id @default(autoincrement())
+  choose_close_digit String  @db.VarChar(2)  // 2-digit number
+  status            Boolean  @default(true)  // false: closed, true: open
+  twoBets           TwoBet[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("choose_digits")
+}
+
+// Head Close - Closed head digit management
+model HeadClose {
+  id              Int      @id @default(autoincrement())
+  head_close_digit String  @db.VarChar(1)  // Single digit (0-9)
+  status          Boolean  @default(true)  // false: closed, true: open
+  twoBets         TwoBet[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("head_closes")
+}
+
+// Slip Number Counter - Atomic counter for slip numbers
+model SlipNumberCounter {
+  id            Int      @id @default(1)
+  current_number BigInt  @default(0)
+  updatedAt     DateTime @updatedAt
+
+  @@map("slip_number_counter")
+}
+
+// Two D Result - Winning results
+model TwoDResult {
+  id          Int        @id @default(autoincrement())
+  result_date DateTime   @db.Date
+  session     BetSession
+  win_number  String     @db.VarChar(2)  // Winning 2-digit number
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("two_d_results")
+}
+
+// To migrate this schema, run the following commands:
+// 1. Generate migration files:
+//    npx prisma migrate dev --name init
+//
+// 2. Apply migrations to database:
+//    npx prisma migrate deploy
+//
+// 3. Generate Prisma Client (if needed):
+//    npx prisma generate
+//
+// For development:
+// - Use `prisma migrate dev` to create migrations and apply them
+// - Use `prisma db push` for quick schema prototyping without migrations
+//
+// For production:
+// - Always use `prisma migrate deploy` to apply migrations
+// - Never use `prisma db push` in production
