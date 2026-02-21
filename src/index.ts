@@ -17,10 +17,15 @@ if (!JWT_SECRET) {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   
-  // Allow requests from your frontend origin
+  // Allow requests from frontend origins (admin on Vercel + main site + local dev)
   app.use(cors({
-    origin: ['http://localhost:5173', 'https://thetthetwinnerschool.online', 'http://thetthetwinnerschool.online'],
-    credentials: true // if you need to send cookies or authentication headers
+    origin: [
+      'http://localhost:5173',
+      'https://thetthetwinnerschool.online',
+      'http://thetthetwinnerschool.online',
+      'https://2d-admin.vercel.app',
+    ],
+    credentials: true,
   }));
   
   // Routes with api prefix

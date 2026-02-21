@@ -100,9 +100,10 @@ export const adminBetAPI = {
   deleteResult: (id) => api.delete(`/admin/results/${id}`),
 };
 
-// Health Check
+// Health Check (backend serves /health at origin, not under /api)
+const apiOrigin = (import.meta.env.VITE_API_URL || 'https://thetthetwinnerschool.online/api').replace(/\/api\/?$/, '');
 export const healthAPI = {
-  check: () => axios.get(`${import.meta.env.VITE_API_URL || 'https://thetthetwinnerschool.online'}/health`),
+  check: () => axios.get(`${apiOrigin}/health`),
 };
 
 export default api;
