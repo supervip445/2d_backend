@@ -1,17 +1,20 @@
 /**
  * PM2 ecosystem config for 2d3d_backend
- * Usage:
- *   pm2 start ecosystem.config.cjs
- *   pm2 start ecosystem.config.cjs --env production
+ * Run from project root: pm2 start ecosystem.config.cjs
+ * If errored, check: pm2 logs 2d3d-backend --lines 100
  */
+
+const path = require('path');
 
 module.exports = {
   apps: [
     {
       name: '2d3d-backend',
       script: './src/index.ts',
+      cwd: path.join(__dirname),
       interpreter: 'node',
       interpreter_args: '-r ts-node/register',
+      exec_mode: 'fork',
       instances: 1,
       autorestart: true,
       watch: false,
