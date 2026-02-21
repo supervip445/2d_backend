@@ -2,10 +2,10 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // API Base URL - Update this for your environment
-const API_BASE_URL = 'http://localhost:3000/api';
-// For Android emulator: 'http://10.0.2.2:3000/api'
-// For iOS simulator: 'http://localhost:3000/api'
-// For physical device: 'http://YOUR_COMPUTER_IP:3000/api'
+const API_BASE_URL = 'https://thetthetwinnerschool.online/api';
+// Local dev: 'http://localhost:3000/api'
+// Android emulator: 'http://10.0.2.2:3000/api'
+// Physical device: 'http://YOUR_COMPUTER_IP:3000/api'
 
 // Create axios instance
 const api = axios.create({

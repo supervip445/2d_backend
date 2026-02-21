@@ -5,7 +5,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx nodemon",
-    "dev": "npx nodemon --config nodemon.json"
+    "dev": "npx nodemon --config nodemon.json",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:start:prod": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:stop": "pm2 stop 2d3d-backend",
+    "pm2:restart": "pm2 restart 2d3d-backend --env production",
+    "pm2:logs": "pm2 logs 2d3d-backend",
+    "pm2:status": "pm2 status"
   },
   "keywords": [],
   "author": "",

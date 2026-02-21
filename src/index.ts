@@ -19,7 +19,7 @@ if (!JWT_SECRET) {
   
   // Allow requests from your frontend origin
   app.use(cors({
-    origin: 'http://localhost:5173', // or use '*' for all origins (not recommended for production)
+    origin: ['http://localhost:5173', 'https://thetthetwinnerschool.online', 'http://thetthetwinnerschool.online'],
     credentials: true // if you need to send cookies or authentication headers
   }));
   
