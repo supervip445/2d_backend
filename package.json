@@ -11,7 +11,11 @@
     "pm2:stop": "pm2 stop 2d3d-backend",
     "pm2:restart": "pm2 restart ecosystem.config.cjs --env production",
     "pm2:logs": "pm2 logs 2d3d-backend",
-    "pm2:status": "pm2 status"
+    "pm2:status": "pm2 status",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:seed-two-digit": "ts-node prisma/seedTwoDigit.ts",
+    "db:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
