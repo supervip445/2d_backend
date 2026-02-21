@@ -1,40 +1,40 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import { AdminBetController } from '../controllers/adminBet.controller';
-import { authenticateToken } from '../middleware/auth.middleware';
-import { isAdmin } from '../middleware/auth.middleware';
+import { authenticateToken, isAdmin } from '../middleware/auth.middleware';
+import { asyncHandler } from '../middleware/error.middleware';
 
 const router = Router();
 const adminBetController = new AdminBetController();
 
 // All routes require authentication and admin access
-router.use(authenticateToken);
-router.use(isAdmin);
+router.use(authenticateToken as RequestHandler);
+router.use(isAdmin as RequestHandler);
 
 // TwoBetSlip routes
-router.get('/bet-slips', (req, res) => adminBetController.getBetSlips(req, res));
-router.get('/bet-slips/:id', (req, res) => adminBetController.getBetSlipById(req, res));
-router.put('/bet-slips/:id/status', (req, res) => adminBetController.updateBetSlipStatus(req, res));
-router.delete('/bet-slips/:id', (req, res) => adminBetController.deleteBetSlip(req, res));
+router.get('/bet-slips', asyncHandler(adminBetController.getBetSlips.bind(adminBetController)));
+router.get('/bet-slips/:id', asyncHandler(adminBetController.getBetSlipById.bind(adminBetController)));
+router.put('/bet-slips/:id/status', asyncHandler(adminBetController.updateBetSlipStatus.bind(adminBetController)));
+router.delete('/bet-slips/:id', asyncHandler(adminBetController.deleteBetSlip.bind(adminBetController)));
 
 // TwoBet (Bet Detail) routes
-router.get('/bet-details', (req, res) => adminBetController.getBetDetails(req, res));
-router.get('/bet-details/:id', (req, res) => adminBetController.getBetDetailById(req, res));
-router.put('/bet-details/:id', (req, res) => adminBetController.updateBetDetail(req, res));
-router.delete('/bet-details/:id', (req, res) => adminBetController.deleteBetDetail(req, res));
+router.get('/bet-details', asyncHandler(adminBetController.getBetDetails.bind(adminBetController)));
+router.get('/bet-details/:id', asyncHandler(adminBetController.getBetDetailById.bind(adminBetController)));
+router.put('/bet-details/:id', asyncHandler(adminBetController.updateBetDetail.bind(adminBetController)));
+router.delete('/bet-details/:id', asyncHandler(adminBetController.deleteBetDetail.bind(adminBetController)));
 
 // HeadClose routes
-router.get('/head-closes', (req, res) => adminBetController.getHeadCloses(req, res));
-router.get('/head-closes/:id', (req, res) => adminBetController.getHeadCloseById(req, res));
-router.post('/head-closes', (req, res) => adminBetController.createHeadClose(req, res));
-router.put('/head-closes/:id', (req, res) => adminBetController.updateHeadClose(req, res));
-router.delete('/head-closes/:id', (req, res) => adminBetController.deleteHeadClose(req, res));
+router.get('/head-closes', asyncHandler(adminBetController.getHeadCloses.bind(adminBetController)));
+router.get('/head-closes/:id', asyncHandler(adminBetController.getHeadCloseById.bind(adminBetController)));
+router.post('/head-closes', asyncHandler(adminBetController.createHeadClose.bind(adminBetController)));
+router.put('/head-closes/:id', asyncHandler(adminBetController.updateHeadClose.bind(adminBetController)));
+router.delete('/head-closes/:id', asyncHandler(adminBetController.deleteHeadClose.bind(adminBetController)));
 
 // TwoDResult routes
-router.get('/results', (req, res) => adminBetController.getResults(req, res));
-router.get('/results/:id', (req, res) => adminBetController.getResultById(req, res));
-router.post('/results', (req, res) => adminBetController.createResult(req, res));
-router.put('/results/:id', (req, res) => adminBetController.updateResult(req, res));
-router.delete('/results/:id', (req, res) => adminBetController.deleteResult(req, res));
+router.get('/results', asyncHandler(adminBetController.getResults.bind(adminBetController)));
+router.get('/results/:id', asyncHandler(adminBetController.getResultById.bind(adminBetController)));
+router.post('/results', asyncHandler(adminBetController.createResult.bind(adminBetController)));
+router.put('/results/:id', asyncHandler(adminBetController.updateResult.bind(adminBetController)));
+router.delete('/results/:id', asyncHandler(adminBetController.deleteResult.bind(adminBetController)));
 
 export default router;
 

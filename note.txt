@@ -73,3 +73,20 @@ model Product {
       }
     });
   }
+
+
+  npm run pm2:start
+
+# Or for production
+npm run pm2:start:prod
+
+# Check status
+npm run pm2:status
+
+# View logs
+npm run pm2:logs
+
+pm2 delete 2d3d-backend
+cd /path/to/2d3d_backend
+pm2 start ecosystem.config.cjs --env production
+pm2 save
